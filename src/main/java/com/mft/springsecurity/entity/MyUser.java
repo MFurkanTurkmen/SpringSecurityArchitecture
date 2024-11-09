@@ -21,10 +21,10 @@ public class MyUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name",  length = 100)
     private String name;
 
-    @Column(name = "surname", nullable = false, length = 100)
+    @Column(name = "surname",  length = 100)
     private String surname;
 
     @Column(name = "birthdate")
@@ -42,7 +42,7 @@ public class MyUser {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

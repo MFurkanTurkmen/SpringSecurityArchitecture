@@ -21,9 +21,7 @@ public class AuthController {
 
         authService.register(signUpRequest);
 
-
-
         return ResponseEntity.ok("User registered successfully!");
     }
 }
-}
+
