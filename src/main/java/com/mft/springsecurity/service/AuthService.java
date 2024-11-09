@@ -36,6 +36,7 @@ public class AuthService {
         Set<String> strRoles = request.getRole();
         Set<Role> roles = new HashSet<>();
 
+
         if (strRoles == null) {
             Role roleUser= roleRepository.findOptionalByName(ERole.ROLE_USER.name()).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 
@@ -45,6 +46,7 @@ public class AuthService {
                 switch (role) {
                     case "admin":
 
+                        // TODO -> role reposunda bir hata var ve bu hata düzeltilecek
                         Role roleAdmin= roleRepository.findOptionalByName(ERole.ROLE_ADMIN.name()).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(roleAdmin);
                         break;
