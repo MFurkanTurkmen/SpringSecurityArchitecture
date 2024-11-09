@@ -1,7 +1,7 @@
 package com.mft.springsecurity.service;
 
 import com.mft.springsecurity.dto.UserRQ;
-import com.mft.springsecurity.entity.User;
+import com.mft.springsecurity.entity.MyUser;
 import com.mft.springsecurity.repository.UserRepository;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -16,16 +16,16 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public List<User> findAll() {
+    public List<MyUser> findAll() {
         return userRepository.findAll();
     }
 
-    public Optional<User> findById(Long id) {
+    public Optional<MyUser> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    public User save(UserRQ userDto) {
-        User user= new User();
+    public MyUser save(UserRQ userDto) {
+        MyUser user= new MyUser();
         user.setName(userDto.getName());
         user.setSurname(userDto.getSurname());
 
@@ -36,7 +36,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User update(User user) {
+    public MyUser update(MyUser user) {
         if (userRepository.existsById(user.getId())) {
             return userRepository.save(user);
         } else {

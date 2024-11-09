@@ -2,7 +2,7 @@ package com.mft.springsecurity.controller;
 
 import com.mft.springsecurity.dto.UserRQ;
 import com.mft.springsecurity.dto.UserRS;
-import com.mft.springsecurity.entity.User;
+import com.mft.springsecurity.entity.MyUser;
 import com.mft.springsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,21 +28,21 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserRS> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.findById(id);
+        Optional<MyUser> user = userService.findById(id);
         return user.map(value -> ResponseEntity.ok(new UserRS(value.getId(), value.getName(), value.getSurname(), value.getBirthdate(), value.getAge(), value.getCity())))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<UserRS> createUser(@RequestBody UserRQ user) {
-        User savedUser = userService.save(user);
+        MyUser savedUser = userService.save(user);
         return ResponseEntity.ok(new UserRS(savedUser.getId(), savedUser.getName(), savedUser.getSurname(), savedUser.getBirthdate(), savedUser.getAge(), savedUser.getCity()));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserRS> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<UserRS> updateUser(@PathVariable Long id, @RequestBody MyUser user) {
         user.setId(id);
-        User updatedUser = userService.update(user);
+        MyUser updatedUser = userService.update(user);
         return ResponseEntity.ok(new UserRS(updatedUser.getId(), updatedUser.getName(), updatedUser.getSurname(), updatedUser.getBirthdate(), updatedUser.getAge(), updatedUser.getCity()));
     }
 
