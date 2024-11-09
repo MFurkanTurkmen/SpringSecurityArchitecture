@@ -35,4 +35,10 @@ public class User {
     @Column(name = "city", length = 100)
     private String city;
 
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
 }
