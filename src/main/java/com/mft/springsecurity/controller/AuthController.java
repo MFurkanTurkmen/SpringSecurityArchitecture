@@ -1,7 +1,11 @@
 package com.mft.springsecurity.controller;
 
+import com.mft.springsecurity.dto.LoginRequest;
+import com.mft.springsecurity.dto.LoginResponse;
 import com.mft.springsecurity.dto.SignupRequest;
 import com.mft.springsecurity.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +26,23 @@ public class AuthController {
         authService.register(signUpRequest);
 
         return ResponseEntity.ok("User registered successfully!");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletRequest request) {
+        String ipAddress = extractIpAddress(request);
+        LoginResponse response = authService.login(loginRequest, ipAddress);
+        return ResponseEntity.ok(response);
+    }
+
+    private String extractIpAddress(HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr();
+        }
+        return ipAddress;
     }
 
 }
