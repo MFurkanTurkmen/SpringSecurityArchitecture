@@ -38,7 +38,7 @@ public class AuthService {
 
 
         if (strRoles == null) {
-            Role roleUser= roleRepository.findOptionalByName(ERole.ROLE_USER.name()).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            Role roleUser= roleRepository.findOptionalByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 
             roles.add(roleUser);
         } else {
@@ -46,18 +46,17 @@ public class AuthService {
                 switch (role) {
                     case "admin":
 
-                        // TODO -> role reposunda bir hata var ve bu hata düzeltilecek
-                        Role roleAdmin= roleRepository.findOptionalByName(ERole.ROLE_ADMIN.name()).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        Role roleAdmin= roleRepository.findOptionalByName(ERole.ROLE_ADMIN).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(roleAdmin);
                         break;
                     case "mod":
-                        Role roleMod= roleRepository.findOptionalByName(ERole.ROLE_MODERATOR.name()).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        Role roleMod= roleRepository.findOptionalByName(ERole.ROLE_MODERATOR).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 
                         roles.add(roleMod);
 
                         break;
                     default:
-                        Role roleUser= roleRepository.findOptionalByName(ERole.ROLE_USER.name()).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        Role roleUser= roleRepository.findOptionalByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 
                         roles.add(roleUser);
                 }
