@@ -4,6 +4,7 @@ import com.mft.springsecurity.dto.LoginRequest;
 import com.mft.springsecurity.dto.LoginResponse;
 import com.mft.springsecurity.dto.SignupRequest;
 import com.mft.springsecurity.entity.Auth;
+import com.mft.springsecurity.entity.LoginHistory;
 import com.mft.springsecurity.entity.Role;
 import com.mft.springsecurity.entity.enums.ERole;
 import com.mft.springsecurity.exception.AuthenticationException;
@@ -17,7 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,6 +33,8 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenManager jwtTokenManager;
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final long LOCK_TIME_DURATION = 30; // minutes
 
 
     public void register(SignupRequest request) {
@@ -117,22 +124,6 @@ public class AuthService {
         return buildLoginResponse(user, accessToken);
     }
 
-    private void handleFailedLogin(Auth user) {
-        // Implement failed login attempt tracking
-        // You might want to store this in a separate table or cache
-        // And implement account locking after X failed attempts
-    }
-
-    private void validateAccountStatus(Auth user) {
-        // Add additional validation logic here
-        // Example: check if account is locked, expired, or requires password change
-    }
-
-    private void updateLoginInfo(Auth user, String ipAddress) {
-        // Update last login date and IP
-        // You might want to add these fields to your User entity
-        authRepository.save(user);
-    }
 
     private LoginResponse buildLoginResponse(Auth user, String accessToken) {
         return LoginResponse.builder()
@@ -150,4 +141,139 @@ public class AuthService {
                         .build())
                 .build();
     }
+
+
+
+
+
+    private void handleFailedLogin(Auth user) {
+        // Başarısız giriş denemelerini takip etmek için yeni alanlar ekleyelim
+        // Auth entity'sine bu alanları eklememiz gerekiyor:
+        // private int failedAttempts;
+        // private LocalDateTime lockTime;
+
+        int failedAttempts = user.getFailedAttempts() + 1;
+        user.setFailedAttempts(failedAttempts);
+
+        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+            user.setLockTime(LocalDateTime.now());
+            user.setAccountLocked(true);
+        }
+
+        authRepository.save(user);
+
+        // Eğer hesap kilitlendi ise özel bir exception fırlatalım
+        if (user.getAccountLocked()) {
+            throw new AuthenticationException(
+                    "Account has been locked due to multiple failed attempts. " +
+                            "Please try again after " + LOCK_TIME_DURATION + " minutes.",
+                    "AUTH_003",
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+    }
+
+    private void validateAccountStatus(Auth user) {
+        // Hesap kilitli mi kontrol et
+        if (user.getAccountLocked()) {
+            LocalDateTime lockTime = user.getLockTime();
+            if (lockTime != null) {
+                LocalDateTime unlockTime = lockTime.plusMinutes(LOCK_TIME_DURATION);
+                if (LocalDateTime.now().isBefore(unlockTime)) {
+                    long minutesRemaining = ChronoUnit.MINUTES.between(
+                            LocalDateTime.now(),
+                            unlockTime
+                    );
+                    throw new AuthenticationException(
+                            "Account is locked. Please try again after " +
+                                    minutesRemaining + " minutes.",
+                            "AUTH_004",
+                            HttpStatus.UNAUTHORIZED
+                    );
+                } else {
+                    // Kilit süresini geçmiş, hesabı tekrar aktif et
+                    user.setAccountLocked(false);
+                    user.setFailedAttempts(0);
+                    user.setLockTime(null);
+                    authRepository.save(user);
+                }
+            }
+        }
+
+        // Hesap aktif mi kontrol et
+        if (!user.getActive()) {
+            throw new AuthenticationException(
+                    "Account is not active. Please contact support.",
+                    "AUTH_005",
+                    HttpStatus.FORBIDDEN
+            );
+        }
+
+        // Şifre değişikliği gerekiyor mu kontrol et
+        if (user.getPasswordChangeRequired()) {
+            throw new AuthenticationException(
+                    "Password change is required. Please update your password.",
+                    "AUTH_006",
+                    HttpStatus.FORBIDDEN
+            );
+        }
+    }
+
+    private void updateLoginInfo(Auth user, String ipAddress) {
+        // Başarılı giriş sonrası bilgileri güncelle
+        user.setLastLoginDate(LocalDateTime.now());
+        user.setLastLoginIp(ipAddress);
+        user.setFailedAttempts(0); // Başarılı girişte deneme sayısını sıfırla
+        user.setLockTime(null);
+        user.setAccountLocked(false);
+
+        // Son 5 girişi kaydet (circular buffer mantığıyla)
+        List<LoginHistory> loginHistory = user.getLoginHistory();
+        if (loginHistory == null) {
+            loginHistory = new ArrayList<>();
+        }
+
+        LoginHistory newLogin = LoginHistory.builder()
+                .loginDate(LocalDateTime.now())
+                .ipAddress(ipAddress)
+                .deviceInfo(getDeviceInfo()) // User-Agent bilgisini almak için yardımcı metot
+                .successful(true)
+                .build();
+
+        loginHistory.add(0, newLogin); // En yeni girişi başa ekle
+
+        // Sadece son 5 girişi tut
+        if (loginHistory.size() > 5) {
+            loginHistory = loginHistory.subList(0, 5);
+        }
+
+        user.setLoginHistory(loginHistory);
+        authRepository.save(user);
+    }
+
+    // Yardımcı metotlar
+    private String getDeviceInfo() {
+        // ServletRequestAttributes attributes =
+        //     (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        // if (attributes != null) {
+        //     HttpServletRequest request = attributes.getRequest();
+        //     return request.getHeader("User-Agent");
+        // }
+        return "Unknown Device";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
