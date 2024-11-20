@@ -1,8 +1,8 @@
 package com.mft.springsecurity.config;
 
-import com.mft.springsecurity.entity.MyUser;
+import com.mft.springsecurity.entity.Auth;
 import com.mft.springsecurity.entity.Role;
-import com.mft.springsecurity.repository.UserRepository;
+import com.mft.springsecurity.repository.AuthRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,12 +20,12 @@ import java.util.Optional;
 public class JwtUserDetails implements UserDetailsService {
 
     @Autowired
-    UserRepository userRepository;
+    AuthRepository authRepository;
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<MyUser> myUser = userRepository.findOptionalByUsername(username);
+        Optional<Auth> myUser = authRepository.findOptionalByUsername(username);
         if (myUser.isEmpty()) throw new UsernameNotFoundException("User not found with username: " + username);
 
         List<GrantedAuthority> authorities=new ArrayList<>();

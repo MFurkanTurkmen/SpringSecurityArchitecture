@@ -3,12 +3,12 @@ package com.mft.springsecurity.service;
 import com.mft.springsecurity.dto.LoginRequest;
 import com.mft.springsecurity.dto.LoginResponse;
 import com.mft.springsecurity.dto.SignupRequest;
-import com.mft.springsecurity.entity.MyUser;
+import com.mft.springsecurity.entity.Auth;
 import com.mft.springsecurity.entity.Role;
 import com.mft.springsecurity.entity.enums.ERole;
 import com.mft.springsecurity.exception.AuthenticationException;
 import com.mft.springsecurity.repository.RoleRepository;
-import com.mft.springsecurity.repository.UserRepository;
+import com.mft.springsecurity.repository.AuthRepository;
 import com.mft.springsecurity.util.JwtTokenManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,14 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
+    private final AuthRepository authRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenManager jwtTokenManager;
@@ -33,12 +32,12 @@ public class AuthService {
 
     public void register(SignupRequest request) {
         // Check if username already exists
-        if (userRepository.findOptionalByUsername(request.getUsername()).isPresent()) {
+        if (authRepository.findOptionalByUsername(request.getUsername()).isPresent()) {
             throw new RuntimeException("Error: Username is already taken!");
         }
 
         // Create new user
-        MyUser user = new MyUser();
+        Auth user = new Auth();
         user.setUsername(request.getUsername());
         user.setName(request.getName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -75,14 +74,14 @@ public class AuthService {
 
 
         user.setRoles(roles);
-        userRepository.save(user);
+        authRepository.save(user);
         System.out.printf("User %s registered successfully!%n", user.getUsername());
     }
 
     @Transactional
     public LoginResponse login(LoginRequest request, String ipAddress) {
         // 1. Validate and find user
-        MyUser user = userRepository.findOptionalByUsername(request.getUsername())
+        Auth user = authRepository.findOptionalByUsername(request.getUsername())
                 .orElseThrow(() -> new AuthenticationException(
                         "Invalid username or password",
                         "AUTH_001",
@@ -118,24 +117,24 @@ public class AuthService {
         return buildLoginResponse(user, accessToken);
     }
 
-    private void handleFailedLogin(MyUser user) {
+    private void handleFailedLogin(Auth user) {
         // Implement failed login attempt tracking
         // You might want to store this in a separate table or cache
         // And implement account locking after X failed attempts
     }
 
-    private void validateAccountStatus(MyUser user) {
+    private void validateAccountStatus(Auth user) {
         // Add additional validation logic here
         // Example: check if account is locked, expired, or requires password change
     }
 
-    private void updateLoginInfo(MyUser user, String ipAddress) {
+    private void updateLoginInfo(Auth user, String ipAddress) {
         // Update last login date and IP
         // You might want to add these fields to your User entity
-        userRepository.save(user);
+        authRepository.save(user);
     }
 
-    private LoginResponse buildLoginResponse(MyUser user, String accessToken) {
+    private LoginResponse buildLoginResponse(Auth user, String accessToken) {
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .tokenType("Bearer")
