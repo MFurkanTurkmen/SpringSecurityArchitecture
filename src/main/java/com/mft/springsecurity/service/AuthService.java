@@ -87,7 +87,6 @@ public class AuthService {
 
     @Transactional
     public LoginResponse login(LoginRequest request, String ipAddress) {
-        // 1. Validate and find user
         Auth user = authRepository.findOptionalByUsername(request.getUsername())
                 .orElseThrow(() -> new AuthenticationException(
                         "Invalid username or password",
@@ -95,19 +94,18 @@ public class AuthService {
                         HttpStatus.UNAUTHORIZED
                 ));
 
-        // 2. Verify password
+        // 2. Önce hesap durumunu kontrol et
+        validateAccountStatus(user);
+
+        // 3. Şifre kontrolü
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            // Increment failed login attempts
-            handleFailedLogin(user);
+            handleFailedLogin(user);  // Başarısız girişi işle
             throw new AuthenticationException(
                     "Invalid username or password",
                     "AUTH_001",
                     HttpStatus.UNAUTHORIZED
             );
         }
-
-        // 3. Check account status
-        validateAccountStatus(user);
 
         // 4. Generate tokens
         String accessToken = jwtTokenManager.createToken(user.getUsername())
@@ -147,23 +145,16 @@ public class AuthService {
 
 
     private void handleFailedLogin(Auth user) {
-        // Başarısız giriş denemelerini takip etmek için yeni alanlar ekleyelim
-        // Auth entity'sine bu alanları eklememiz gerekiyor:
-        // private int failedAttempts;
-        // private LocalDateTime lockTime;
-
-        int failedAttempts = user.getFailedAttempts() + 1;
+        int failedAttempts = 3;
         user.setFailedAttempts(failedAttempts);
+
+        System.out.println("Failed attempts: " + failedAttempts); // Debug için
 
         if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
             user.setLockTime(LocalDateTime.now());
             user.setAccountLocked(true);
-        }
+            authRepository.save(user);  // Değişiklikleri kaydet
 
-        authRepository.save(user);
-
-        // Eğer hesap kilitlendi ise özel bir exception fırlatalım
-        if (user.getAccountLocked()) {
             throw new AuthenticationException(
                     "Account has been locked due to multiple failed attempts. " +
                             "Please try again after " + LOCK_TIME_DURATION + " minutes.",
@@ -171,6 +162,9 @@ public class AuthService {
                     HttpStatus.UNAUTHORIZED
             );
         }
+
+        Auth auth=authRepository.save(user);
+        System.out.println(auth.getFailedAttempts());
     }
 
     private void validateAccountStatus(Auth user) {
