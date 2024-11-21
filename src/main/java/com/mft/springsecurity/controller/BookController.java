@@ -4,6 +4,7 @@ import com.mft.springsecurity.entity.Book;
 import com.mft.springsecurity.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,36 +18,23 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     public List<Book> getAllBooks() {
         return bookService.findAll();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     public ResponseEntity<Book> getBookById(@PathVariable Long id) {
         Optional<Book> book = bookService.findById(id);
         return book.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    //ROLE_ADMIN
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public Book createBook(@RequestBody Book book) {
         return bookService.save(book);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
-        if (!bookService.findById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        book.setId(id);
-        return ResponseEntity.ok(bookService.update(book));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        if (!bookService.findById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        bookService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
 }

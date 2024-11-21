@@ -19,12 +19,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
         ErrorResponse response = new ErrorResponse(
-                ex.getErrorCode(),
-                ex.getMessage(),
+                ex.getExp().code,
+                ex.getExp().message,
                 LocalDateTime.now()
         );
-        return new ResponseEntity<>(response, ex.getStatus());
+        return new ResponseEntity<>(response, ex.getExp().httpStatus);
     }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(
@@ -41,7 +42,7 @@ public class GlobalExceptionHandler {
     @Data
     @AllArgsConstructor
     static class ErrorResponse {
-        private String errorCode;
+        private int errorCode;
         private String message;
         private LocalDateTime timestamp;
     }

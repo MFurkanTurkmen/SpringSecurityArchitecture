@@ -1,4 +1,4 @@
-package com.mft.springsecurity.dto;
+package com.mft.springsecurity.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

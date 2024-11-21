@@ -26,15 +26,4 @@ public class BookService {
         return bookRepository.save(book);
     }
 
-    public void deleteById(Long id) {
-        bookRepository.deleteById(id);
-    }
-
-    public Book update(Book book) {
-        if (bookRepository.existsById(book.getId())) {
-            return bookRepository.save(book);
-        } else {
-            throw new IllegalArgumentException("Book not found");
-        }
-    }
 }

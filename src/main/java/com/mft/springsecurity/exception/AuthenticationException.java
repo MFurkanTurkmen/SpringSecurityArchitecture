@@ -1,17 +1,20 @@
-// src/main/java/com/mft/springsecurity/exception/AuthenticationException.java
 package com.mft.springsecurity.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 public class AuthenticationException extends RuntimeException {
-    private final HttpStatus status;
-    private final String errorCode;
 
-    public AuthenticationException(String message, String errorCode, HttpStatus status) {
-        super(message);
-        this.errorCode = errorCode;
-        this.status = status;
+    private final AllExceptions exp;
+
+    public AuthenticationException(AllExceptions enumException) {
+        super(enumException.message);
+        this.exp = enumException;
     }
+    public AuthenticationException(AllExceptions enumException, String message) {
+        super(message);
+        enumException.message = message;
+        this.exp = enumException;
+    }
+
 }

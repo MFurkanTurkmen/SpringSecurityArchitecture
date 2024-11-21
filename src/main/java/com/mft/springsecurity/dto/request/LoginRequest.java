@@ -1,5 +1,5 @@
 // src/main/java/com/mft/springsecurity/dto/LoginRequest.java
-package com.mft.springsecurity.dto;
+package com.mft.springsecurity.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

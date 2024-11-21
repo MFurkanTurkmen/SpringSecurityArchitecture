@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -12,12 +13,13 @@ import java.util.Optional;
 @Service
 public class JwtTokenManager {
 
-    private final String sifreAnahtari = "etbpcQpLkNsUmYCYKwDmp2iwQVxbYAbUKUuK3Tdv7C4KNQtuL9";
+    @Value("${jwt.secret}")
+    private String sifreAnahtari ;
 
     public Optional<String> createToken(String username){
         String token;
 
-        Long exDate = 1000L*60;
+        Long exDate = 1000L*60*60*24;// 1 gün
         try{
             /**
              * DİKKAT!!!  kullanıcı adı şifre Claim içine konulmaz.
@@ -26,7 +28,6 @@ public class JwtTokenManager {
             token =  JWT.create()
                     .withAudience()
                     .withClaim("username",username) // Token içerisine eklemek istediğiniz nesneleri bununla ekliyoruz.
-                    .withClaim("howtopage","AuthMicroService")
                     .withClaim("isOne",true)
                     .withIssuer("mft") // sahibi
                     .withIssuedAt(new Date()) // oluşturulma zamanı
