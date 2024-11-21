@@ -40,9 +40,9 @@ Create a PostgreSQL database and update the application.yml file with your datab
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5444/springsecurity
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/springsecurity
+    username: "your-username"
+    password: "your-password"
 ```
 
 ### Running the Application
@@ -116,19 +116,8 @@ The application includes a global exception handler that handles:
 - Validation exceptions
 - General application exceptions
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
-
-## License
-
-This project is licensed under the MIT License.
-
 ## Author
 
 Muhammed Furkan Türkmen
 - GitHub: [@MFurkanTurkmen](https://github.com/MFurkanTurkmen)
+- LinkedIn: [Muhammed Furkan Türkmen](https://www.linkedin.com/in/muhammedfurkanturkmen/)

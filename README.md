@@ -1,6 +1,6 @@
 # Spring Security with JWT Authentication
 
-[English](README_EN.md) | [Türkçe](README_TR.md) | [Deutsch](README_DE.md)
+[English](README_EN.md) | [Türkçe](README_TR.md)
 
 <p align="center">
   Select your preferred language above to view the documentation.
@@ -14,7 +14,6 @@
 
 ---
 
-
 ## Project Overview / Proje Genel Bakış 
 
 🔒 Spring Security & JWT Authentication Implementation
@@ -25,7 +24,7 @@
 - PostgreSQL Database
 - Swagger UI Documentation
 
-## Quick Links / Hızlı Bağlantılar / Schnelle Links
+## Quick Links / Hızlı Bağlantılar
 
 📘 [English Documentation](README_EN.md)
 📗 [Türkçe Dokümantasyon](README_TR.md)
@@ -34,3 +33,4 @@
 
 Muhammed Furkan Türkmen
 - GitHub: [@MFurkanTurkmen](https://github.com/MFurkanTurkmen)
+- LinkedIn: [Muhammed Furkan Türkmen](https://www.linkedin.com/in/muhammedfurkanturkmen/)

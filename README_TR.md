@@ -41,8 +41,8 @@ Bir PostgreSQL veritabanı oluşturun ve application.yml dosyasını veritabanı
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5444/springsecurity
-    username: "your-username"
-    password: "your-password"
+    username: "kullanıcı-adınız"
+    password: "şifreniz"
 ```
 
 ### Uygulamayı Çalıştırma
@@ -109,7 +109,7 @@ Uygulama aşağıdaki rolleri destekler:
 - ROLE_MODERATOR
 - ROLE_ADMIN
 
-## Hata Yönetimi
+## İstisna Yönetimi
 
 Uygulama, aşağıdakileri işleyen global bir istisna işleyicisi içerir:
 - Kimlik doğrulama istisnaları
@@ -120,3 +120,4 @@ Uygulama, aşağıdakileri işleyen global bir istisna işleyicisi içerir:
 
 Muhammed Furkan Türkmen
 - GitHub: [@MFurkanTurkmen](https://github.com/MFurkanTurkmen)
+- LinkedIn: [Muhammed Furkan Türkmen](https://www.linkedin.com/in/muhammedfurkanturkmen/)
